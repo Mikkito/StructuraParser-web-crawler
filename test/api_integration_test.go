@@ -13,7 +13,7 @@ import (
 
 func TestAPI(t *testing.T) {
 	go func() {
-		server.Main()
+		server.StartServer()
 	}()
 	time.Sleep(5 * time.Second)
 	reqBody := map[string]interface{}{
@@ -40,6 +40,6 @@ func TestAPI(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "Ожидался статус 200 OK")
 	var response map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		t.Fatalf("Ошибка при декодировании ответа: %v", err)
+		t.Fatalf("Error decoding response: %v", err)
 	}
 }

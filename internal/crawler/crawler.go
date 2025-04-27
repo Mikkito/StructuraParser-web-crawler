@@ -3,14 +3,15 @@ package crawler
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+
+	//"fmt"
 	"io"
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"strings"
-	"time"
+	//"os"
+	//"strings"
+	//"time"
 )
 
 func scrapeURL(url string) {
@@ -34,7 +35,7 @@ func scrapeURL(url string) {
 	payload := map[string]string{"html": string(htmlBytes)}
 	jsonData, _ := json.Marshal(payload)
 	// Save data for ml DON`T FORGET DELETE IN PRODACTION VERSION !!!!
-	dirPath := "web-crawler/results"
+	/*dirPath := "web-crawler/results"
 	err = CreateDirIfNotExist(dirPath)
 	if err != nil {
 		fmt.Printf("Error dir created: %v", err)
@@ -44,7 +45,7 @@ func scrapeURL(url string) {
 	err = SaveToFile(dirPath, fileName, string(htmlBytes))
 	if err != nil {
 		fmt.Printf("Save error: %v", err)
-	}
+	}*/
 	// Send request in pyhton service
 	pyResp, err := http.Post("http://localhost:8090/parsehtml", "applications/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -69,7 +70,7 @@ func scrapeURL(url string) {
 }
 
 // For ML don`t forget delete on prodaction
-func CreateDirIfNotExist(dirPath string) error {
+/*func CreateDirIfNotExist(dirPath string) error {
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		return os.MkdirAll(dirPath, os.ModePerm)
 	}
@@ -86,4 +87,4 @@ func SaveToFile(dirPath, fileName, content string) error {
 }
 func sanitizeURL(url string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(url, "https://", ""), "/", "_")
-}
+}*/

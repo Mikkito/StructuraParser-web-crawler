@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	server.Main()
+	server.StartServer()
 }
