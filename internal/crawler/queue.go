@@ -26,16 +26,6 @@ func (q *URLQueue) Dequeue() string {
 	return <-q.urls
 }
 
-// Starting the processing process
-
-func (q *URLQueue) Worker() {
-	defer q.wg.Done()
-	for url := range q.urls {
-		time.Sleep(q.delay) // delay with request
-		go scrapeURL(url)   // processing url
-	}
-}
-
 func (q *URLQueue) Wait() {
 	q.wg.Wait()
 }

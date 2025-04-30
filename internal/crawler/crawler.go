@@ -7,28 +7,29 @@ import (
 	//"fmt"
 	"io"
 	//"io/ioutil"
-	"log"
 	"net/http"
+	"web-crawler/pkg/utils/logger"
 	//"os"
 	//"strings"
 	//"time"
 )
 
 func scrapeURL(url string) {
+	logger := logger.Sugared()
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Println("Error fetching URL: ", url, err)
+		logger.Errorf("Error fetching URL: ", url, err)
 		return
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		log.Printf("Non OK status code: %d for url: %s\n", resp.StatusCode, url)
+		logger.Errorf("Non OK status code: %d for url: %s\n", resp.StatusCode, url)
 		return
 	}
 
 	htmlBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Println("Error read HTML: ", err)
+		logger.Errorf("Error read HTML: ", err)
 		return
 	}
 	// Creating JSON package for Python service
@@ -47,9 +48,9 @@ func scrapeURL(url string) {
 		fmt.Printf("Save error: %v", err)
 	}*/
 	// Send request in pyhton service
-	pyResp, err := http.Post("http://localhost:8090/parsehtml", "applications/json", bytes.NewBuffer(jsonData))
+	pyResp, err := http.Post("http://localhost:8090/parser", "applications/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Println("Error calling Python service: ", err)
+		logger.Errorf("Error calling Python service: ", err)
 		return
 	}
 	defer pyResp.Body.Close()
@@ -62,7 +63,7 @@ func scrapeURL(url string) {
 		} "json:\"blocks\""
 	}
 	if err := json.NewDecoder(pyResp.Body).Decode(&result); err != nil {
-		log.Println("Failed to decode response from ML parser:", err)
+		logger.Errorf("Failed to decode response from ML parser:", err)
 		return
 	}
 	// Working with the result

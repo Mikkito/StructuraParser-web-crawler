@@ -12,33 +12,40 @@ import (
 var crawlerQueue *crawler.URLQueue
 var mutx sync.Mutex
 
+// Create request structure
+type RequestBody struct {
+	URLs []string `json:"urls"`
+}
+
 // Crawler start
 func StartCrawlHandler(w http.ResponseWriter, r *http.Request) {
+	var req RequestBody
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
-	var data map[string]string
-	if err := json.Unmarshal(body, &data); err != nil {
+	if err := json.Unmarshal(body, &req); err != nil {
 		http.Error(w, "Failed to parse JSON", http.StatusBadRequest)
 		return
 	}
 	mutx.Lock()
 	defer mutx.Unlock()
-	crawlerQueue = crawler.NewURLQueue(1000, 2*time.Second)
+	crawlerQueue := crawler.NewURLQueue(10, 2*time.Second)
+	worker := crawler.NewWorker(crawlerQueue)
+	worker.Start(5)
 	crawlerQueue.Enqueue("https://botcreators.ru")
 	crawlerQueue.Enqueue("https://structura.app")
 	crawlerQueue.Enqueue("https://automatisation.art")
-	for _, site := range data {
-		crawlerQueue.Enqueue(site)
+	for _, url := range req.URLs {
+		crawlerQueue.Enqueue(url)
 	}
-	go crawlerQueue.Worker()
 	crawlerQueue.Wait()
 
 	w.WriteHeader(http.StatusOK)
