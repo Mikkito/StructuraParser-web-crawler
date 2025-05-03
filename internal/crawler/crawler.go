@@ -1,20 +1,22 @@
 package crawler
 
 import (
-	"bytes"
-	"encoding/json"
 
 	//"fmt"
 	"io"
 	//"io/ioutil"
 	"net/http"
+	"web-crawler/internal/dispatcher"
+	"web-crawler/internal/model"
 	"web-crawler/pkg/utils/logger"
+
+	"golang.org/x/net/html/charset"
 	//"os"
 	//"strings"
 	//"time"
 )
 
-func scrapeURL(url string) {
+func scrapeURL(url string, resultChan chan<- model.Block) {
 	logger := logger.Sugared()
 	resp, err := http.Get(url)
 	if err != nil {
@@ -26,66 +28,21 @@ func scrapeURL(url string) {
 		logger.Errorf("Non OK status code: %d for url: %s\n", resp.StatusCode, url)
 		return
 	}
-
-	htmlBytes, err := io.ReadAll(resp.Body)
+	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-type"))
+	if err != nil {
+		logger.Errorf("Encoding error: ", err)
+		return
+	}
+	htmlBytes, err := io.ReadAll(reader)
 	if err != nil {
 		logger.Errorf("Error read HTML: ", err)
 		return
 	}
-	// Creating JSON package for Python service
-	payload := map[string]string{"html": string(htmlBytes)}
-	jsonData, _ := json.Marshal(payload)
-	// Save data for ml DON`T FORGET DELETE IN PRODACTION VERSION !!!!
-	/*dirPath := "web-crawler/results"
-	err = CreateDirIfNotExist(dirPath)
+	html := string(htmlBytes)
+	block, err := dispatcher.Dispatch(html, url)
 	if err != nil {
-		fmt.Printf("Error dir created: %v", err)
+		logger.Infof("Block not found or error: %v", err)
 		return
 	}
-	fileName := fmt.Sprintf("%s_%d.html", sanitizeURL(url), time.Now().Unix())
-	err = SaveToFile(dirPath, fileName, string(htmlBytes))
-	if err != nil {
-		fmt.Printf("Save error: %v", err)
-	}*/
-	// Send request in pyhton service
-	pyResp, err := http.Post("http://localhost:8090/parser", "applications/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		logger.Errorf("Error calling Python service: ", err)
-		return
-	}
-	defer pyResp.Body.Close()
-	// Result structure
-	var result struct {
-		Blocks []struct {
-			Type     string "json:\"type\""
-			Platform string "json:\"platform\""
-			Selector string "json:\"selector\""
-		} "json:\"blocks\""
-	}
-	if err := json.NewDecoder(pyResp.Body).Decode(&result); err != nil {
-		logger.Errorf("Failed to decode response from ML parser:", err)
-		return
-	}
-	// Working with the result
-
+	resultChan <- block
 }
-
-// For ML don`t forget delete on prodaction
-/*func CreateDirIfNotExist(dirPath string) error {
-	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		return os.MkdirAll(dirPath, os.ModePerm)
-	}
-	return nil
-}
-func SaveToFile(dirPath, fileName, content string) error {
-	filePath := fmt.Sprintf("%s/%s", dirPath, fileName)
-	err := ioutil.WriteFile(filePath, []byte(content), 0644)
-	if err != nil {
-		return fmt.Errorf("Error writing to file: %v", err)
-	}
-	fmt.Printf("The file was saved successfully %s\n", filePath)
-	return nil
-}
-func sanitizeURL(url string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(url, "https://", ""), "/", "_")
-}*/
