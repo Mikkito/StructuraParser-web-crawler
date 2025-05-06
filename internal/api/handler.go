@@ -49,9 +49,6 @@ func StartCrawlHandler(w http.ResponseWriter, r *http.Request) {
 	crawlerQueue := crawler.NewURLQueue(10, 2*time.Second)
 	worker := crawler.NewWorker(crawlerQueue)
 	worker.Start(5, resultChan, &scrapeWg)
-	crawlerQueue.Enqueue("https://botcreators.ru")
-	crawlerQueue.Enqueue("https://structura.app")
-	crawlerQueue.Enqueue("https://automatisation.art")
 	for _, url := range req.URLs {
 		crawlerQueue.Enqueue(url)
 	}

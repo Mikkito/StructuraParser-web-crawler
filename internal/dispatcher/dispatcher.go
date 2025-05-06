@@ -19,3 +19,11 @@ func Dispatch(html string, pageURL string) (model.Block, error) {
 		Accuracy: "0.0",
 	}, fmt.Errorf("no suitable block found")
 }
+
+// for test
+func ResetHandlers() {
+	handlers := model.GetAllHandlers()
+	for k := range handlers {
+		delete(handlers, k)
+	}
+}

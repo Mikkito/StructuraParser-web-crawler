@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 	"web-crawler/internal/model"
+	"web-crawler/pkg/utils/logger"
 )
 
 type Worker struct {
@@ -31,7 +32,7 @@ func (w *Worker) worker(resultChan chan<- model.Block, scrapeWg *sync.WaitGroup)
 		scrapeWg.Add(1)
 		go func(url string) {
 			defer scrapeWg.Done()
-			scrapeURL(url, resultChan)
+			ScrapeURL(url, resultChan, logger.Sugared())
 		}(url)
 	}
 }

@@ -8,6 +8,7 @@ import (
 )
 
 func TestEnqueue(t *testing.T) {
+	// Rewrite this test !!
 	testUrl := "https://testurl.com"
 	testUrl2 := "https://twotesturl.com"
 	TestQueue := NewURLQueue(10, 2*time.Second)
