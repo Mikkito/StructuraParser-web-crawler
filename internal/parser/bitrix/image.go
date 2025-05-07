@@ -9,7 +9,7 @@ import (
 )
 
 func MatchImage(html string) bool {
-	return (strings.Contains(html, `class="bx-image"`) || strings.Contains(html, "bitrix-img")) && strings.Contains(html, "<img")
+	return (strings.Contains(html, `class="bx-image"`) || strings.Contains(html, "bitrix-img") || strings.Contains(html, "bitrix-image")) && strings.Contains(html, "<img")
 }
 
 func ExtractImage(html, pageURL string) (model.Block, error) {
@@ -17,7 +17,7 @@ func ExtractImage(html, pageURL string) (model.Block, error) {
 	if err != nil {
 		return model.Block{}, err
 	}
-	img := doc.Find("img[class*='bx-image'], img[class*='bitrix-img']").First()
+	img := doc.Find("img[class*='bx-image'], img[class*='bitrix-img'], img[class*='bitrix-image']").First()
 	if img.Length() == 0 {
 		return model.Block{
 			Type:     "bitrix_img",

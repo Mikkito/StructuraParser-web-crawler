@@ -32,8 +32,6 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// nilSafeT реализует testing.TB, но ничего не делает
-// Используется, если LoadMockHTML вызывается вне тестов
 type nilSafeT struct{}
 
 func (n nilSafeT) Helper()                           {}

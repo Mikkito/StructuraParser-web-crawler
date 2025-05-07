@@ -19,7 +19,10 @@ func ExtractImage(html, pageURL string) (model.Block, error) {
 	}
 	img := doc.Find("div.t-img img").First()
 	if img.Length() == 0 {
-		return model.Block{}, errors.New("Img not found")
+		img := doc.Find("img.t-img").First()
+		if img.Length() == 0 {
+			return model.Block{}, errors.New("Img not found")
+		}
 	}
 	htmlImg, err := goquery.OuterHtml(img)
 	if err != nil {

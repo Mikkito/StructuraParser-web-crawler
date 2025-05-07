@@ -31,7 +31,7 @@ func TestCrawlHTML5Integration(t *testing.T) {
 
 	payload := map[string][]string{"urls": {mockServer.URL}}
 	body, _ := json.Marshal(payload)
-	req := httptest.NewRequest(http.MethodPost, "/start", bytes.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, "/crawl", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	api.StartCrawlHandler(w, req)

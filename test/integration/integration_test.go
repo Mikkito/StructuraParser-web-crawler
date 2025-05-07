@@ -26,7 +26,7 @@ func TestCrawlWithMockSite(t *testing.T) {
 		"urls": {mockServer.URL},
 	}
 	body, _ := json.Marshal(payload)
-	req := httptest.NewRequest(http.MethodPost, "/start", bytes.NewBuffer(body))
+	req := httptest.NewRequest(http.MethodPost, "/crawl", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 

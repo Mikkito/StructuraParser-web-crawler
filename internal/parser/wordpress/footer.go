@@ -21,7 +21,7 @@ func ExtractFooter(html, pageURL string) (model.Block, error) {
 	footer := doc.Find("footer")
 	if footer.Length() == 0 {
 		return model.Block{
-			Type:     "wordpress_header",
+			Type:     "wordpress_footer",
 			HTML:     "",
 			PageURL:  pageURL,
 			Found:    "false",
@@ -33,7 +33,7 @@ func ExtractFooter(html, pageURL string) (model.Block, error) {
 		return model.Block{}, err
 	}
 	return model.Block{
-		Type:     "wordpress_header",
+		Type:     "wordpress_footer",
 		HTML:     htmlBlock,
 		PageURL:  pageURL,
 		Found:    "true",
