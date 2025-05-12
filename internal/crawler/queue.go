@@ -29,3 +29,7 @@ func (q *URLQueue) Dequeue() string {
 func (q *URLQueue) Wait() {
 	q.wg.Wait()
 }
+
+func (q *URLQueue) Close() {
+	close(q.urls)
+}

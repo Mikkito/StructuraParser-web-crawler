@@ -12,7 +12,7 @@ func LoadMockHTML(t *testing.T, filename string) string {
 	if t != nil {
 		t.Helper()
 	}
-	path := filepath.Join("tests", "integration", "mockdata", filename)
+	path := filepath.Join("test", "integration", "mockdata", filename)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if t != nil {

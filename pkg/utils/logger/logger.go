@@ -15,7 +15,7 @@ type Config struct {
 	Level            string   `yaml:"level"`
 	OutputPaths      []string `yaml:"outputPaths"`
 	ErrorOutputPaths []string `yaml:"errorOutputPaths"`
-	isProd           bool     `yaml: "isProd"`
+	IsProd           bool     `yaml: "isProd"`
 }
 
 // Initialization logger
@@ -33,7 +33,7 @@ func Init(configPath string) error {
 	}
 
 	var zapCfg zap.Config
-	if cfg.isProd {
+	if cfg.IsProd {
 		zapCfg = zap.NewProductionConfig()
 	} else {
 		zapCfg = zap.NewDevelopmentConfig()

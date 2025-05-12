@@ -52,6 +52,7 @@ func StartCrawlHandler(w http.ResponseWriter, r *http.Request) {
 	for _, url := range req.URLs {
 		crawlerQueue.Enqueue(url)
 	}
+	crawlerQueue.Close()
 	crawlerQueue.Wait()
 	scrapeWg.Wait()
 	close(resultChan)
