@@ -34,7 +34,7 @@ func TestExtractImage(t *testing.T) {
 		block, err := bitrix.ExtractImage(html, pageURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "bitrix_image", block.Type)
+		assert.Equal(t, "bitrix_img", block.Type)
 		assert.Contains(t, block.HTML, "bx-image")
 		assert.Equal(t, "true", block.Found)
 		assert.Equal(t, pageURL, block.PageURL)

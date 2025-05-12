@@ -9,7 +9,7 @@ import (
 )
 
 func MatchImage(html string) bool {
-	return strings.Contains(html, "wp-image") || strings.Contains(html, "wp-post-image") && strings.Contains(html, "<img")
+	return (strings.Contains(html, "wp-image") || strings.Contains(html, "wp-post-image")) && strings.Contains(html, "<img")
 }
 
 func ExtractImage(html, pageURL string) (model.Block, error) {

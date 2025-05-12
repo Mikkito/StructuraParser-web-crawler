@@ -11,31 +11,43 @@ import (
 )
 
 func ScrapeURL(url string, resultChan chan<- model.Block, log *zap.SugaredLogger) {
+	log.Infof("Scraping URL: %s", url)
+
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Errorf("Error fetching URL: ", url, err)
+		log.Errorf("Error fetching URL %s: %v", url, err)
 		return
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		log.Errorf("Non OK status code: %d for url: %s\n", resp.StatusCode, url)
+
+	if resp.StatusCode != http.StatusOK {
+		log.Errorf("Non-OK status code: %d for URL: %s", resp.StatusCode, url)
 		return
 	}
-	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-type"))
+
+	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
 	if err != nil {
-		log.Errorf("Encoding error: ", err)
+		log.Errorf("Encoding error for URL %s: %v", url, err)
 		return
 	}
+
 	htmlBytes, err := io.ReadAll(reader)
 	if err != nil {
-		log.Errorf("Error read HTML: ", err)
+		log.Errorf("Error reading HTML from %s: %v", url, err)
 		return
 	}
+
 	html := string(htmlBytes)
-	block, err := dispatcher.Dispatch(html, url)
+	log.Infof("Dispatching HTML from: %s", url)
+
+	blocks, err := dispatcher.Dispatch(html, url)
 	if err != nil {
-		log.Infof("Block not found or error: %v", err)
+		log.Warnf("Dispatch error for %s: %v", url, err)
 		return
 	}
-	resultChan <- block
+
+	for _, block := range blocks {
+		log.Infof("Dispatched block type: %s", block.Type)
+		resultChan <- block
+	}
 }

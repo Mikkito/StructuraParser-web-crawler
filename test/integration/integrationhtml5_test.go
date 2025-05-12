@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 	"web-crawler/internal/api"
+	_ "web-crawler/internal/handlers"
 	"web-crawler/internal/model"
 )
 

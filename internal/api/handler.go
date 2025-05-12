@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -29,7 +29,7 @@ func StartCrawlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
 		return
@@ -41,12 +41,12 @@ func StartCrawlHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	mutx.Lock()
 	defer mutx.Unlock()
-	go func() {
-		for block := range resultChan {
-			results = append(results, block)
-		}
-	}()
-	crawlerQueue := crawler.NewURLQueue(10, 2*time.Second)
+	//go func() {
+	//	for block := range resultChan {
+	//		results = append(results, block)
+	//	}
+	//}()
+	crawlerQueue = crawler.NewURLQueue(10, 2*time.Second)
 	worker := crawler.NewWorker(crawlerQueue)
 	worker.Start(5, resultChan, &scrapeWg)
 	for _, url := range req.URLs {
@@ -56,7 +56,9 @@ func StartCrawlHandler(w http.ResponseWriter, r *http.Request) {
 	crawlerQueue.Wait()
 	scrapeWg.Wait()
 	close(resultChan)
-
+	for block := range resultChan {
+		results = append(results, block)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)
 }

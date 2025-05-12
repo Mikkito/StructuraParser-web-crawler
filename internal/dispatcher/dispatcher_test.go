@@ -31,31 +31,50 @@ func TestDispatch(t *testing.T) {
 	tests := []struct {
 		name        string
 		mockMap     map[string]model.BlockHandler
-		expected    model.Block
+		expected    []model.Block
 		expectError bool
 	}{
 		{
-			name: "Handler matches and extracts",
+			name: "Multiple handlers match and extract",
 			mockMap: map[string]model.BlockHandler{
-				"mock": &mockHandler{
-					name:        "mock",
+				"mock1": &mockHandler{
+					name:        "mock1",
 					shouldMatch: true,
 					returnBlock: model.Block{
-						Type:     "mock",
-						HTML:     "<div>mock</div>",
+						Type:     "mock1",
+						HTML:     "<div>mock1</div>",
 						PageURL:  "http://site",
 						Found:    "true",
 						Accuracy: "1.0",
 					},
-					returnError: nil,
+				},
+				"mock2": &mockHandler{
+					name:        "mock2",
+					shouldMatch: true,
+					returnBlock: model.Block{
+						Type:     "mock2",
+						HTML:     "<div>mock2</div>",
+						PageURL:  "http://site",
+						Found:    "true",
+						Accuracy: "1.0",
+					},
 				},
 			},
-			expected: model.Block{
-				Type:     "mock",
-				HTML:     "<div>mock</div>",
-				PageURL:  "http://site",
-				Found:    "true",
-				Accuracy: "1.0",
+			expected: []model.Block{
+				{
+					Type:     "mock1",
+					HTML:     "<div>mock1</div>",
+					PageURL:  "http://site",
+					Found:    "true",
+					Accuracy: "1.0",
+				},
+				{
+					Type:     "mock2",
+					HTML:     "<div>mock2</div>",
+					PageURL:  "http://site",
+					Found:    "true",
+					Accuracy: "1.0",
+				},
 			},
 			expectError: false,
 		},
@@ -67,13 +86,7 @@ func TestDispatch(t *testing.T) {
 					shouldMatch: false,
 				},
 			},
-			expected: model.Block{
-				Type:     "unknown",
-				HTML:     "",
-				PageURL:  "http://site",
-				Found:    "false",
-				Accuracy: "0.0",
-			},
+			expected:    nil,
 			expectError: true,
 		},
 	}
@@ -84,15 +97,28 @@ func TestDispatch(t *testing.T) {
 			overrideHandlerMap(tt.mockMap)
 			defer overrideHandlerMap(originalHandlers)
 
-			block, err := dispatcher.Dispatch("<html>mock</html>", "http://site")
+			blocks, err := dispatcher.Dispatch("<html>mock</html>", "http://site")
 			if (err != nil) != tt.expectError {
 				t.Fatalf("Unexpected error state: %v", err)
 			}
-			if block != tt.expected {
-				t.Errorf("Unexpected result:\ngot:  %+v\nwant: %+v", block, tt.expected)
+
+			if !equalBlocks(blocks, tt.expected) {
+				t.Errorf("Unexpected result:\ngot:  %+v\nwant: %+v", blocks, tt.expected)
 			}
 		})
 	}
+}
+
+func equalBlocks(a, b []model.Block) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // overrideHandlerMap заменяет глобальный map handlers через reflection (hacky, но безопасно внутри теста)

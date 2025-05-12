@@ -34,7 +34,7 @@ func TestExtractImage(t *testing.T) {
 		block, err := wordpress.ExtractImage(html, pageURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "wordpress_image", block.Type)
+		assert.Equal(t, "wordpress_img", block.Type)
 		assert.Contains(t, block.HTML, `wp-image-123`)
 		assert.Equal(t, pageURL, block.PageURL)
 		assert.Equal(t, "true", block.Found)
