@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  crawler:
+    build: .
+    container_name: web-crawler
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      - GIN_MODE=release  # если используешь gin
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
